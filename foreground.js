@@ -136,7 +136,7 @@
         counter--;
         document.querySelector('.debugbar .refresh .value').innerHTML = counter;
 
-        if(counter == 0){
+        if(counter <= 0){
           location.reload();
         }
       }, 1000);
