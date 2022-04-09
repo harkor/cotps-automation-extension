@@ -1,43 +1,73 @@
-  chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-    if (msg.text === 'are_you_there_content_script?') {
-      sendResponse({status: "yes"});
-    }
-  });
+// Disable multiple injection on same tab
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+  if (msg.text === 'are_you_there_content_script?') {
+    sendResponse({status: "yes"});
+  }
+});
 
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
+class COTPSBot {
 
-  let $wrap = document.querySelector('.transaction-wrap');
+  constructor(){
 
-  let $debugBlock = document.createElement('div');
-  
-  debugHTML = '';
-  debugHTML += '<h1>Script activated</h1>';
-  debugHTML += '<ul>';
-    debugHTML += '<li class="wallet">Wallet: <span class="value"></span> $</li>';
-    debugHTML += '<li class="acceptation">Acceptation: <span class="value"></span> $</li>';
-    debugHTML += '<li class="refresh">Next refresh in <span class="value"></span> s</li>';
-    // debugHTML += '<li class="total">Total: <span class="value"></span></li>';
-  debugHTML += '</ul>';
+    var parent = this;
 
-  $debugBlock.innerHTML = debugHTML;
+    this.$wrap = document.querySelector('.transaction-wrap');
+    this.$debugBlock;
+    this.wallets = {};
+    this.counterInterval;
+    this.currentUrl;
 
-  $debugBlock.classList.add('debugbar');
+    this.createDebugbar();
 
-  $wrap.appendChild($debugBlock);
-
-  console.log('Script injected');
-
-  var initInterval = setInterval(function(){
-
-    if(isLoading() == false){
-      clearInterval(initInterval);
-      init();
-    }
+    this.setMinWallet(5);
+    this.setWallet(0);
+    this.setTransaction(0);
+    this.setTotal(0);
     
-  }, 500);
+    // Check when loading is over
+    this.initInterval = setInterval(function(){
 
-  async function init(){
-    
+      if(parent.isLoading() == false){
+        clearInterval(parent.initInterval);
+        parent.init();
+      }
+      
+    }, 500);
+
+  }
+
+  createDebugbar(){
+
+    this.$debugBlock = document.createElement('div');
+
+    var debugHTML = '';
+
+    debugHTML += '<h1>Bot</h1>';
+
+    debugHTML += '<ul>';
+      debugHTML += '<li class="wallet">Wallet: <span class="value">?</span>$</li>';
+      debugHTML += '<li class="transaction">In transaction: <span class="value">?</span>$</li>';
+      debugHTML += '<li class="total">Total: <span class="value">?</span>$</li>';
+    debugHTML += '</ul>';
+
+    debugHTML += '<ul>';
+      debugHTML += '<li class="minWallet">Minimum balance to make order(s): <span class="value">?</span>$</li>';
+    debugHTML += '</ul>';
+
+    debugHTML += '<ul>';
+      debugHTML += '<li class="refresh">Refresh in <span class="value">?</span> seconds</li>';
+    debugHTML += '</ul>';
+
+    this.$debugBlock.classList.add('debugbar');
+    this.$debugBlock.innerHTML = debugHTML;
+
+    // Add to wrapper
+    this.$wrap.appendChild(this.$debugBlock);
+
+  }
+
+  init(){
+
     console.log('App is loaded');
 
     document.querySelectorAll('.uni-tabbar-bottom .uni-tabbar__item').forEach(function(item){
@@ -45,66 +75,73 @@
       item.addEventListener('click', function(){
 
         var $page = document.querySelector('uni-page');
-        var url = $page.getAttribute('data-page');
-        console.log(url);
+        this.url = $page.getAttribute('data-page');
   
       });
 
     });
 
-    checkWallet();
-    checkAcceptation();
+    var wallets = this.checkWallets();
+    this.setMinWallet(wallets.total * 1); // Do order only if we have receive 90% of our total
 
-    doOrder();
-
-    // if(canMakeOrder()){
-    //   console.log('we can do order and we do it');
-    //   doOrder();
-    // } else {
-    //   console.log('We can\'t do order actually');
-    // }
-
-    checkLastOrder();
+    this.doOrder();
 
   }
 
-  function checkWallet(){
+  isLoading(){
 
+    var status = false;
+
+    var $unitoast = document.querySelectorAll('uni-toast');
+    if($unitoast.length > 0){
+      $unitoast.forEach(function(item){
+        var $unitoastContent = $unitoast[0].querySelector('.uni-toast__content');
+        var text = $unitoastContent.innerHTML.trim();
+          
+        if(text == 'loading'){
+          status = true;
+        }
+
+      });
+
+    }
+
+    return status;
+
+  }
+
+  checkWallets(){
+
+    // Wallet
     var $wallet = document.querySelector('.division-right .division-num');
-    var balance = parseFloat($wallet.innerHTML);
+    var walletBalance = parseFloat($wallet.innerHTML);
+    this.setWallet(walletBalance);
 
-    if(balance < 5){
+    if(walletBalance < this.minimumWallet){
       $wallet.classList.add('money-too-low');
     } else {
       $wallet.classList.remove('money-too-low');
     }
 
-    console.log('Wallet : ' + balance);
+    // Transaction
+    var $transaction = document.querySelector('.division-left .division-num');
+    var transactionBalance = parseFloat($transaction.innerHTML);
+    this.setTransaction(transactionBalance)
 
-    document.querySelector('.debugbar .wallet .value').innerHTML = balance;
+    // Total
+    var $total = document.querySelector('.money-num');
+    var totalBalance = parseFloat($total.innerHTML);
+    this.setTotal(totalBalance);
 
-    return balance;
-
-  }
-
-  function checkAcceptation(){
-
-    var $wallet = document.querySelector('.division-left .division-num');
-    var balance = parseFloat($wallet.innerHTML);
-
-    console.log('Acceptation : '+balance);
-
-    document.querySelector('.debugbar .acceptation .value').innerHTML = balance;
-
-    return balance;
+    return this.wallets;
 
   }
 
-  function canMakeOrder(){
+  canMakeOrder(){
 
     var status = false;
 
-    if(checkWallet() > 5){
+    if(this.checkWallets().wallet > this.minimumWallet){
       status = true;
     } else {
       status = false;
@@ -114,9 +151,11 @@
 
   }
 
-  async function doOrder(){
+  async doOrder(){
 
-    if(canMakeOrder()){
+    if(this.canMakeOrder()){
+
+      this.setMinWallet(5);
     
       document.querySelector('.orderBtn').click();
       await sleep(10000);
@@ -125,14 +164,14 @@
       document.querySelector('.fui-wrap__show uni-button[type=primary]').click();
 
       await sleep(10000);
-      doOrder();
+      this.doOrder();
 
     } else {
 
       console.log('Refresh in 5 minutes');
       
       var counter = 5 * 60;
-      setInterval(function(){
+      this.counterInterval = setInterval(function(){
         counter--;
         document.querySelector('.debugbar .refresh .value').innerHTML = counter;
 
@@ -145,29 +184,8 @@
 
   }
 
-  function isLoading(){
-
-    var isLoading = false;
-
-    var $unitoast = document.querySelectorAll('uni-toast');
-    if($unitoast.length > 0){
-      $unitoast.forEach(function(item){
-        var $unitoastContent = $unitoast[0].querySelector('.uni-toast__content');
-        var text = $unitoastContent.innerHTML.trim();
-          
-        if(text == 'loading'){
-          isLoading = true;
-        }
-
-      });
-
-    }
-
-    return isLoading;
-
-  }
-
-  function checkLastOrder(){
+  // WIP
+  checkLastOrder(){
 
     var $records = document.querySelectorAll('.record-list');
 
@@ -183,8 +201,34 @@
       myDate.setMonth(date[0]-1);
       myDate.setHours(time[0], time[1], 0);
 
-      // console.log(myDate);
-
     }
 
   }
+
+  setMinWallet(value){
+    this.minimumWallet = value;
+    this.$debugBlock.querySelector('.minWallet .value').innerHTML = value;
+  }
+
+  setWallet(value){
+    this.wallets.wallet = value;
+    this.$debugBlock.querySelector('.wallet .value').innerHTML = value;
+  }
+
+  setTransaction(value){
+    this.wallets.in_transaction = value;
+    this.$debugBlock.querySelector('.transaction .value').innerHTML = value;
+  }
+
+  setTotal(value){
+    this.wallets.total = value;
+    this.$debugBlock.querySelector('.total .value').innerHTML = value;
+  }
+
+}
+
+console.log('Script injected');
+
+new COTPSBot;
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
