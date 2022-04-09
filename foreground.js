@@ -140,10 +140,8 @@
 
     }
 
-    if(canMakeOrder()){
-      await sleep(10000);
-      doOrder();
-    }
+    await sleep(10000);
+    doOrder();
 
   }
 
