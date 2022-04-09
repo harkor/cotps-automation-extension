@@ -8,11 +8,22 @@
 
   let $wrap = document.querySelector('.transaction-wrap');
 
-  // let $debugBlock = document.createElement('div');
-  // $debugBlock.appendChild(document.createTextNode('PROUT'));
-  // $debugBlock.classList.add('debugbar');
+  let $debugBlock = document.createElement('div');
+  
+  debugHTML = '';
+  debugHTML += '<h1>Script activated</h1>';
+  debugHTML += '<ul>';
+    debugHTML += '<li class="wallet">Wallet: <span class="value"></span> $</li>';
+    debugHTML += '<li class="acceptation">Acceptation: <span class="value"></span> $</li>';
+    debugHTML += '<li class="refresh">Next refresh in <span class="value"></span> s</li>';
+    // debugHTML += '<li class="total">Total: <span class="value"></span></li>';
+  debugHTML += '</ul>';
 
-  // $wrap.appendChild($debugBlock);
+  $debugBlock.innerHTML = debugHTML;
+
+  $debugBlock.classList.add('debugbar');
+
+  $wrap.appendChild($debugBlock);
 
   console.log('Script injected');
 
@@ -41,6 +52,7 @@
 
     });
 
+    checkWallet();
     checkAcceptation();
 
     doOrder();
@@ -69,6 +81,8 @@
 
     console.log('Wallet : ' + balance);
 
+    document.querySelector('.debugbar .wallet .value').innerHTML = balance;
+
     return balance;
 
   }
@@ -79,6 +93,8 @@
     var balance = parseFloat($wallet.innerHTML);
 
     console.log('Acceptation : '+balance);
+
+    document.querySelector('.debugbar .acceptation .value').innerHTML = balance;
 
     return balance;
 
@@ -100,8 +116,6 @@
 
   async function doOrder(){
 
-    await sleep(10000);
-
     if(canMakeOrder()){
     
       document.querySelector('.orderBtn').click();
@@ -110,15 +124,25 @@
       await sleep(10000);
       document.querySelector('.fui-wrap__show uni-button[type=primary]').click();
 
+    } else {
+
+      console.log('Refresh in 5 minutes');
+      
+      var counter = 5 * 60;
+      setInterval(function(){
+        counter--;
+        document.querySelector('.debugbar .refresh .value').innerHTML = counter;
+
+        if(counter == 0){
+          location.reload();
+        }
+      }, 1000);
+
     }
 
     if(canMakeOrder()){
+      await sleep(10000);
       doOrder();
-    } else {
-      console.log('Refresh in 5 minutes');
-      setTimeout(function(){
-        location.reload();
-      }, 5 * 60 * 1000);
     }
 
   }
