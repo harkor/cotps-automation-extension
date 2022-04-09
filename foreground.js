@@ -124,6 +124,9 @@
       await sleep(10000);
       document.querySelector('.fui-wrap__show uni-button[type=primary]').click();
 
+      await sleep(10000);
+      doOrder();
+
     } else {
 
       console.log('Refresh in 5 minutes');
@@ -139,9 +142,6 @@
       }, 1000);
 
     }
-
-    await sleep(10000);
-    doOrder();
 
   }
 
