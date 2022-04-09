@@ -10,8 +10,8 @@ It's an extension to automate transactions on CTOPS
 4. Go to extensions page
 5. Enable developper mode
 6. Click on "Load unpacked"
-7. Select folder off extension
-8. Refresh transaction page
+7. Select folder off the extension
+8. Refresh transactions page on CTOPS website
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
