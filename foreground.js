@@ -49,6 +49,8 @@ class COTPSBot {
 
   createDebugbar(){
 
+    var parent = this;
+
     this.$debugBlock = document.createElement('div');
 
     var debugHTML = '';
@@ -66,11 +68,19 @@ class COTPSBot {
     debugHTML += '</ul>';
 
     debugHTML += '<ul>';
-      debugHTML += '<li class="refresh">Refresh in <span class="value">?</span> seconds</li>';
+      debugHTML += '<li class="refresh">Refresh in <span class="value">?</span> seconds <button class="reset-refresh-timer">reset</button></li>';
     debugHTML += '</ul>';
 
     this.$debugBlock.classList.add('debugbar');
     this.$debugBlock.innerHTML = debugHTML;
+
+    this.$debugBlock.querySelector('.reset-refresh-timer').addEventListener('click', function(){
+
+      chrome.storage.local.clear(['refreshStepIndex']);
+      parent.setRefreshStepIndex(0);
+      location.reload();
+
+    });
 
     // Add result to wrapper
     this.$wrap.appendChild(this.$debugBlock);
@@ -178,7 +188,6 @@ class COTPSBot {
     var parent = this;
 
     console.log(this.refreshStepIndex);
-
 
     if(this.canMakeOrder()){
 
