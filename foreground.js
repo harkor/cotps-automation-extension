@@ -182,6 +182,7 @@ class COTPSBot {
     if(this.canMakeOrder()){
 
       chrome.storage.local.clear(['refreshStepIndex']);
+      this.setRefreshStepIndex(0);
 
       this.setMinWallet(5);
     
