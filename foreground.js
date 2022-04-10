@@ -95,7 +95,7 @@ class COTPSBot {
     });
 
     var wallets = this.checkWallets();
-    this.setMinWallet( (wallets.total * 10) - 1 ); // Do order only if we have receive 90% of our total
+    this.setMinWallet( (wallets.total * 1) - 5 ); // Do order only if we have receive 90% of our total
 
     chrome.storage.local.get(['refreshStepIndex'], function(result) {
 
