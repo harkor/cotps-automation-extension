@@ -5,6 +5,8 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   }
 });
 
+// chrome.storage.local.clear(['refreshStepIndex']);
+
 class COTPSBot {
 
   constructor(){
@@ -16,6 +18,15 @@ class COTPSBot {
     this.wallets = {};
     this.counterInterval;
     this.currentUrl;
+    this.refreshStepIndex;
+    this.nextRefreshStepIndex;
+
+    this.refreshSteps = [
+      100 * 60, // 1h40
+      10 * 60, // 10 min
+      5 * 60, // 5 min
+      2 * 60, // 2 min
+    ];
 
     this.createDebugbar();
 
@@ -61,12 +72,14 @@ class COTPSBot {
     this.$debugBlock.classList.add('debugbar');
     this.$debugBlock.innerHTML = debugHTML;
 
-    // Add to wrapper
+    // Add result to wrapper
     this.$wrap.appendChild(this.$debugBlock);
 
   }
 
   init(){
+
+    var parent = this;
 
     console.log('App is loaded');
 
@@ -82,9 +95,18 @@ class COTPSBot {
     });
 
     var wallets = this.checkWallets();
-    this.setMinWallet(wallets.total * 1); // Do order only if we have receive 90% of our total
+    this.setMinWallet( (wallets.total * 10) - 1 ); // Do order only if we have receive 90% of our total
 
-    this.doOrder();
+    chrome.storage.local.get(['refreshStepIndex'], function(result) {
+
+      if(result.refreshStepIndex == undefined){
+        result.refreshStepIndex = 0;
+      }
+
+      parent.setRefreshStepIndex(result.refreshStepIndex);    
+      parent.doOrder(); // Try to make order on load
+    
+    });
 
   }
 
@@ -153,7 +175,13 @@ class COTPSBot {
 
   async doOrder(){
 
+    var parent = this;
+
+    console.log(this.refreshStepIndex);
+
     if(this.canMakeOrder()){
+
+      chrome.storage.local.clear(['refreshStepIndex']);
 
       this.setMinWallet(5);
     
@@ -168,9 +196,15 @@ class COTPSBot {
 
     } else {
 
-      console.log('Refresh in 5 minutes');
+      var nextRefreshStepIndex = this.refreshStepIndex + 1;
+  
+      if(this.refreshSteps[nextRefreshStepIndex] == undefined){
+        nextRefreshStepIndex = this.refreshSteps.length-1;
+      }
+
+      this.saveRefreshStepIndex(nextRefreshStepIndex);
       
-      var counter = 5 * 60;
+      var counter = this.refreshSteps[this.refreshStepIndex];
       this.counterInterval = setInterval(function(){
         counter--;
         document.querySelector('.debugbar .refresh .value').innerHTML = counter;
@@ -225,9 +259,17 @@ class COTPSBot {
     this.$debugBlock.querySelector('.total .value').innerHTML = value;
   }
 
+  setRefreshStepIndex(value){
+    this.refreshStepIndex = value;
+  }
+
+  saveRefreshStepIndex(value){
+    chrome.storage.local.set({'refreshStepIndex': value});
+  }
+
 }
 
-console.log('Script injected');
+console.log('Bot injected');
 
 new COTPSBot;
 
