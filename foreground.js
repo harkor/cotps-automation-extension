@@ -179,6 +179,7 @@ class COTPSBot {
 
     console.log(this.refreshStepIndex);
 
+
     if(this.canMakeOrder()){
 
       chrome.storage.local.clear(['refreshStepIndex']);
