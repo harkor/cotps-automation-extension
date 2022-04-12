@@ -5,13 +5,13 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   }
 });
 
-// chrome.storage.local.clear(['refreshStepIndex']);
-
 class COTPSBot {
 
   constructor(){
 
     var parent = this;
+
+    this.manifestData = chrome.runtime.getManifest();
 
     this.$wrap = document.querySelector('.transaction-wrap');
     this.$debugBlock;
@@ -55,7 +55,7 @@ class COTPSBot {
 
     var debugHTML = '';
 
-    debugHTML += '<h1>Bot</h1>';
+    debugHTML += '<h1>Bot <span>by harkor</span></h1>';
 
     debugHTML += '<ul>';
       debugHTML += '<li class="wallet">Wallet: <span class="value">?</span>$</li>';
@@ -70,6 +70,8 @@ class COTPSBot {
     debugHTML += '<ul>';
       debugHTML += '<li class="refresh">Refresh in <span class="value">?</span> seconds <button class="reset-refresh-timer">reset</button></li>';
     debugHTML += '</ul>';
+
+    debugHTML += '<span class="version">v'+ this.manifestData.version +'</span>';
 
     this.$debugBlock.classList.add('debugbar');
     this.$debugBlock.innerHTML = debugHTML;
@@ -223,6 +225,7 @@ class COTPSBot {
         if(counter <= 0){
           location.reload();
         }
+        
       }, 1000);
 
     }

@@ -12,6 +12,13 @@
   font-size: 18px;
 }
 
+.debugbar h1 span {
+  font-size: 12px;
+  /* float: right; */
+  font-weight: 400;
+  font-style: italic;
+}
+
 .debugbar ul {
   margin: 0;
   padding: 10px 0 0;
@@ -32,4 +39,11 @@
 
 .money-too-low {
   color: red !important;
+}
+
+.debugbar .version {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  font-size: 12px;
 }
