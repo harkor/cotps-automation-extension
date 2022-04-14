@@ -6,6 +6,7 @@
   "background": {
     "service_worker": "background.js"
   },
+  "options_page": "options.html",
   "permissions": [
     "storage",
     "activeTab",
@@ -14,5 +15,11 @@
   ],
   "host_permissions": [
     "https://cotps.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [ "defaultOptions.json"],
+      "matches": [ "<all_urls>" ]
+    }
   ]
 }

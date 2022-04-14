@@ -13,6 +13,7 @@ class COTPSBot {
 
     this.manifestData = chrome.runtime.getManifest();
 
+    this.options = null;
     this.$wrap = document.querySelector('.transaction-wrap');
     this.$debugBlock;
     this.wallets = {};
@@ -20,13 +21,6 @@ class COTPSBot {
     this.currentUrl;
     this.refreshStepIndex;
     this.nextRefreshStepIndex;
-
-    this.refreshSteps = [
-      100 * 60, // 1h40
-      10 * 60, // 10 min
-      5 * 60, // 5 min
-      2 * 60, // 2 min
-    ];
 
     this.createDebugbar();
 
@@ -40,7 +34,9 @@ class COTPSBot {
 
       if(parent.isLoading() == false){
         clearInterval(parent.initInterval);
-        parent.init();
+        parent.getOptions().then(function(){
+          parent.init();
+        });
       }
       
     }, 500);
@@ -78,7 +74,7 @@ class COTPSBot {
 
     this.$debugBlock.querySelector('.reset-refresh-timer').addEventListener('click', function(){
 
-      chrome.storage.local.clear(['refreshStepIndex']);
+      chrome.storage.local.remove(['refreshStepIndex']);
       parent.setRefreshStepIndex(0);
       location.reload();
 
@@ -107,7 +103,14 @@ class COTPSBot {
     });
 
     var wallets = this.checkWallets();
-    this.setMinWallet( (wallets.total * 1) - 5 ); // Do order only if we have receive 90% of our total
+
+    var minWallet = 0;
+    minWallet = wallets.total * (this.options.minimum_wallet / 100);
+    if(this.options.min_wallet_system == 'fixed_val'){
+      minWallet = this.options.minimum_wallet;
+    }
+
+    this.setMinWallet(minWallet); // Do order only if we have receive 90% of our total
 
     chrome.storage.local.get(['refreshStepIndex'], function(result) {
 
@@ -163,9 +166,10 @@ class COTPSBot {
     this.setTransaction(transactionBalance)
 
     // Total
-    var $total = document.querySelector('.money-num');
-    var totalBalance = parseFloat($total.innerHTML);
-    this.setTotal(totalBalance);
+    // var $total = document.querySelector('.money-num');
+    // var totalBalance = parseFloat($total.innerHTML);
+    var totalBalance = walletBalance + transactionBalance;
+    this.setTotal(Math.floor(totalBalance));
 
     return this.wallets;
 
@@ -189,11 +193,9 @@ class COTPSBot {
 
     var parent = this;
 
-    console.log(this.refreshStepIndex);
-
     if(this.canMakeOrder()){
 
-      chrome.storage.local.clear(['refreshStepIndex']);
+      chrome.storage.local.remove(['refreshStepIndex']);
       this.setRefreshStepIndex(0);
 
       this.setMinWallet(5);
@@ -211,13 +213,13 @@ class COTPSBot {
 
       var nextRefreshStepIndex = this.refreshStepIndex + 1;
   
-      if(this.refreshSteps[nextRefreshStepIndex] == undefined){
-        nextRefreshStepIndex = this.refreshSteps.length-1;
+      if(this.options.refresh_steps[nextRefreshStepIndex] == undefined){
+        nextRefreshStepIndex = this.options.refresh_steps.length-1;
       }
 
       this.saveRefreshStepIndex(nextRefreshStepIndex);
       
-      var counter = this.refreshSteps[this.refreshStepIndex];
+      var counter = this.options.refresh_steps[this.refreshStepIndex];
       this.counterInterval = setInterval(function(){
         counter--;
         document.querySelector('.debugbar .refresh .value').innerHTML = counter;
@@ -279,6 +281,53 @@ class COTPSBot {
 
   saveRefreshStepIndex(value){
     chrome.storage.local.set({'refreshStepIndex': value});
+  }
+
+  getOptions(){
+
+    var parent = this;
+
+    return new Promise((resolve, reject) => {
+
+      chrome.storage.local.get('options', (data) => {
+        if(data.options != undefined){
+          parent.setOptions(data.options);
+          resolve(data.options);
+        } else {
+
+          console.log('need to load default options');
+
+          var httpRequest = new XMLHttpRequest();
+          
+          httpRequest.onreadystatechange = function(){
+            if (httpRequest.readyState === XMLHttpRequest.DONE) {
+              if (httpRequest.status === 200) {
+                var options = JSON.parse(httpRequest.response);
+                parent.setOptions(options);
+                resolve(options);
+              }
+            }
+          }
+
+          httpRequest.open('GET', chrome.runtime.getURL('defaultOptions.json'));
+          httpRequest.send();
+        }  
+      });
+
+    });
+  
+  }
+
+  setOptions(value){
+    
+    value.minimum_wallet = parseFloat(value.minimum_wallet);
+    
+    value.refresh_steps = value.refresh_steps.split(',');
+    value.refresh_steps.forEach(function(item, key){
+      value.refresh_steps[key] = parseFloat(item) * 60;
+    });
+
+    this.options = value;
   }
 
 }

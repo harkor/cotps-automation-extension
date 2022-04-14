@@ -1,0 +1,64 @@
+body {
+  background-color: #05162c;
+  color: #fff;
+}
+
+.wrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 800px;
+  background-color: #262a34;
+  color: #c9cacc;
+  border-radius: 10px;
+}
+
+.card .card-header {
+  border-bottom: 1px solid #36383d;
+}
+
+.card .card-header h1 {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  padding: 0;
+}
+
+.card .card-content {
+  padding: 15px;
+}
+
+form h2 {
+  font-size: 16px;
+}
+
+form .btn-primary {
+  background-color: rgb(0, 255, 170);
+  border-color: rgb(0, 255, 170);
+  color: #333;
+}
+
+form .btn-primary:hover,
+form .btn-primary:active,
+form .btn-primary:focus {
+  background-color: rgb(0, 255, 132);
+  border-color: rgb(0, 255, 132);
+  color: #333;
+}
+
+.copyright {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: rgb(0, 255, 170);
+  color: #333;
+  font-size: 14px;
+  padding: 10px;
+  border-radius: 5px 0 0 0;
+}
