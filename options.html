@@ -29,7 +29,7 @@
             <div class="row">
               <div class="col-lg-6 mb-3">
                 <label for="min_wallet_system" class="form-label">System</label>
-                <select class="form-select" id="min_wallet_system" name="min_wallet_system">
+                <select class="form-select" id="min_wallet_system" name="min_wallet_system" required>
                   <option value="percentage">Percentage</option>
                   <option value="fixed_val">Fixed value in $</option>
                 </select>
@@ -37,7 +37,7 @@
               </div>
               <div class="col-lg-6 mb-3">
                 <label for="minimum_wallet" class="form-label">Value</label>
-                <input type="number" class="form-control" id="minimum_wallet" name="minimum_wallet" value="">
+                <input type="number" class="form-control" id="minimum_wallet" name="minimum_wallet" required value="">
                 <div id="minimumWalletValueHelp" class="form-text">Be carefull, if you set "percentage", <strong>don't</strong> set a value higher than 100</div>                
               </div>
             </div>
@@ -46,12 +46,13 @@
             <div class="row">
               <div class="col-lg -6 mb-3">
                 <label for="refresh_steps" class="form-label">Steps</label>
-                <input type="text" class="form-control" id="refresh_steps" name="refresh_steps" value="">
+                <input type="text" class="form-control" id="refresh_steps" name="refresh_steps" required value="">
                 <div id="refreshStepsHelp" class="form-text">Separate values by comma example for 10 minutes, 5 minutes and then 2 minutes : 10,5,2</div>
               </div>
             </div>
 
             <button type="submit" class="btn btn-primary">Save</button>
+            <button class="btn btn-warning btn-reset">Reset settings</button>
 
           </form>
         </div>

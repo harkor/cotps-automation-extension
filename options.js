@@ -16,8 +16,6 @@ $form.addEventListener('submit', function(e){
   chrome.storage.local.set({'options': options});
   chrome.storage.local.remove(['refreshStepIndex']);
 
-  console.log(options);
-
   $button.innerHTML = '...';
 
   setTimeout(function(){
@@ -31,26 +29,16 @@ $form.addEventListener('submit', function(e){
 
 });
 
-/*!
- * Serialize all form data into an object
- * (c) 2021 Chris Ferdinandi, MIT License, https://gomakethings.com
- * @param  {FormData} data The FormData object to serialize
- * @return {String}        The serialized form data
- */
-function serialize (data) {
-	let obj = {};
-	for (let [key, value] of data) {
-		if (obj[key] !== undefined) {
-			if (!Array.isArray(obj[key])) {
-				obj[key] = [obj[key]];
-			}
-			obj[key].push(value);
-		} else {
-			obj[key] = value;
-		}
-	}
-	return obj;
-}
+$form.querySelector('.btn-reset').addEventListener('click', function(e){
+  
+  e.preventDefault();
+
+  chrome.storage.local.remove(['options', 'refreshStepIndex']);
+
+  location.reload();
+
+});
+
 
 function getOptions(){
 
@@ -85,4 +73,26 @@ function populateForm($form, options){
     var $element = $form.querySelector('#'+key);
     $element.value = value;
   }
+}
+
+
+/*!
+ * Serialize all form data into an object
+ * (c) 2021 Chris Ferdinandi, MIT License, https://gomakethings.com
+ * @param  {FormData} data The FormData object to serialize
+ * @return {String}        The serialized form data
+ */
+function serialize (data) {
+	let obj = {};
+	for (let [key, value] of data) {
+		if (obj[key] !== undefined) {
+			if (!Array.isArray(obj[key])) {
+				obj[key] = [obj[key]];
+			}
+			obj[key].push(value);
+		} else {
+			obj[key] = value;
+		}
+	}
+	return obj;
 }
