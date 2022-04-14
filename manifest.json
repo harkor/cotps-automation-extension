@@ -1,7 +1,7 @@
 {
   "name": "COTPS Automation",
   "description": "Plugin for automation COTPS",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "manifest_version": 3,
   "background": {
     "service_worker": "background.js"
