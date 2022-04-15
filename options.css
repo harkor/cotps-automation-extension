@@ -39,7 +39,12 @@ body {
 }
 
 .card .card-content {
-  padding: 15px;
+  padding: 15px 15px 15px;
+}
+
+.card .card-footer {
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 form h2 {
@@ -67,13 +72,15 @@ form .btn-reset {
 }
 
 .copyright {
-  position: absolute;
+  /* display: inline-block; */
+  /* margin: 0 auto; */
+  /* position: absolute;
   bottom: 0;
-  right: 0;
-  background-color: rgb(0, 255, 170);
-  color: #333;
+  right: 0; */
+  /* background-color: rgb(0, 255, 170); */
+  /* color: #333; */
   font-size: 14px;
-  padding: 10px;
+  /* padding: 10px; */
   border-radius: 5px 0 0 0;
 }
 
