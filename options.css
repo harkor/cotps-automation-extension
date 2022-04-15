@@ -11,9 +11,12 @@ body {
   justify-content: center;
 }
 
-.card {
+.page {
   width: 100%;
   max-width: 800px;
+}
+
+.card {
   background-color: #262a34;
   color: #c9cacc;
   border-radius: 10px;
@@ -67,4 +70,59 @@ form .btn-reset {
   font-size: 14px;
   padding: 10px;
   border-radius: 5px 0 0 0;
+}
+
+.extension-version {
+  font-weight: bold;
+}
+
+.saved-notif {
+  background-color: rgb(0, 255, 170);
+  color: #333;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 7px 15px;
+  border-radius: 5px;
+  font-size: 16px;
+  opacity: 0;
+  transition: all linear 200ms;
+  animation-duration: 500ms;
+  animation-direction: normal;
+  animation-fill-mode: forwards;
+  animation-play-state: paused;
+}
+
+.saved-notif.show {
+  animation-play-state: running;
+  animation-name: showNotif;
+}
+
+.saved-notif.hide {
+  animation-play-state: running;
+  animation-name: hideNotif;
+}
+
+@keyframes showNotif {
+  from {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes hideNotif {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
 }

@@ -16,16 +16,24 @@ $form.addEventListener('submit', function(e){
   chrome.storage.local.set({'options': options});
   chrome.storage.local.remove(['refreshStepIndex']);
 
-  $button.innerHTML = '...';
+  $button.innerHTML = 'Saved';
+  $notif = document.querySelector('.saved-notif');
+  $notif.classList.add('show');
 
   setTimeout(function(){
-    $button.innerHTML = 'Saved';
+    $button.innerHTML = 'Save';
+  }, 1000);
+
+  setTimeout(function(){
+    
+    $notif.classList.remove('show');
+    $notif.classList.add('hide');
 
     setTimeout(function(){
-      $button.innerHTML = 'Save';
+      $notif.classList.remove('hide');
     }, 1000);
 
-  }, 1000);
+  }, 3000);
 
 });
 

@@ -1,5 +1,5 @@
 {
   "min_wallet_system" : "percentage",
   "minimum_wallet" : "100",
-  "refresh_steps" : "100,10,5,2"
+  "refresh_steps" : "120,5,2"
 }
