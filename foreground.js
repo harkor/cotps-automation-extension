@@ -201,12 +201,12 @@ class COTPSBot {
       this.setMinWallet(5);
     
       document.querySelector('.orderBtn').click();
-      await sleep(10000);
+      await sleep(this.options.delay_between_actions * 1000);
       document.querySelector('.fui-dialog__inner .buttons uni-button[type=primary]').click();
-      await sleep(10000);
+      await sleep(this.options.delay_between_actions);
       document.querySelector('.fui-wrap__show uni-button[type=primary]').click();
 
-      await sleep(10000);
+      await sleep(this.options.delay_between_actions);
       this.doOrder();
 
     } else {
@@ -320,6 +320,8 @@ class COTPSBot {
 
   setOptions(value){
     
+    value.delay_between_actions = parseFloat(value.delay_between_actions);
+
     value.minimum_wallet = parseFloat(value.minimum_wallet);
     
     value.refresh_steps = value.refresh_steps.split(',');
@@ -328,6 +330,7 @@ class COTPSBot {
     });
 
     this.options = value;
+
   }
 
 }

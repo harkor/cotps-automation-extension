@@ -1,5 +1,6 @@
 {
   "min_wallet_system" : "percentage",
   "minimum_wallet" : "100",
-  "refresh_steps" : "120,5,2"
+  "refresh_steps" : "120,5,2",
+  "delay_between_actions" : "10"
 }
