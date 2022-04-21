@@ -289,30 +289,33 @@ class COTPSBot {
 
     return new Promise((resolve, reject) => {
 
-      chrome.storage.local.get('options', (data) => {
-        if(data.options != undefined){
-          parent.setOptions(data.options);
-          resolve(data.options);
-        } else {
+      var httpRequest = new XMLHttpRequest();
+      httpRequest.onreadystatechange = function(){
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            var defaultOptions = JSON.parse(httpRequest.response);
+            chrome.storage.local.get('options', (data) => {
+              
+              var savedOptions;
 
-          console.log('need to load default options');
-
-          var httpRequest = new XMLHttpRequest();
-          
-          httpRequest.onreadystatechange = function(){
-            if (httpRequest.readyState === XMLHttpRequest.DONE) {
-              if (httpRequest.status === 200) {
-                var options = JSON.parse(httpRequest.response);
-                parent.setOptions(options);
-                resolve(options);
+              if(data.options != undefined){
+                savedOptions = data.options;
+              } else {
+                savedOptions = {};
               }
-            }
-          }
 
-          httpRequest.open('GET', chrome.runtime.getURL('defaultOptions.json'));
-          httpRequest.send();
-        }  
-      });
+              var mergedOptions = { ...defaultOptions, ...savedOptions };
+              parent.setOptions(mergedOptions);
+
+              resolve(mergedOptions);
+
+            });
+          }
+        }
+      };
+
+      httpRequest.open('GET', chrome.runtime.getURL('defaultOptions.json'));
+      httpRequest.send();
 
     });
   

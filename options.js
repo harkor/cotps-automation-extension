@@ -50,29 +50,32 @@ $form.querySelector('.btn-reset').addEventListener('click', function(e){
 
 function getOptions(){
 
-  chrome.storage.local.get('options', (data) => {
-    console.log(data);
-    if(data.options != undefined){
-      console.log('options loaded');
-      populateForm($form, data.options);
-    } else {
-      console.log('need to load default options');
-      httpRequest = new XMLHttpRequest();
-      httpRequest.onreadystatechange = optionsLoaded;
-      httpRequest.open('GET', './defaultOptions.json');
-      httpRequest.send();
-    }  
-  });
+  httpRequest = new XMLHttpRequest();
+  httpRequest.onreadystatechange = function(){
+    if (httpRequest.readyState === XMLHttpRequest.DONE) {
+      if (httpRequest.status === 200) {
+        var defaultOptions = JSON.parse(httpRequest.response);
+        chrome.storage.local.get('options', (data) => {
+          
+          var savedOptions;
 
-}
+          if(data.options != undefined){
+            savedOptions = data.options;
+          } else {
+            savedOptions = {};
+          }
 
-function optionsLoaded(){
+          var mergedOptions = { ...defaultOptions, ...savedOptions };
 
-  if (httpRequest.readyState === XMLHttpRequest.DONE) {
-    if (httpRequest.status === 200) {
-      populateForm($form, JSON.parse(httpRequest.response));
+          populateForm($form, mergedOptions);
+
+        });
+      }
     }
-  }
+  };
+
+  httpRequest.open('GET', './defaultOptions.json');
+  httpRequest.send();
 
 }
 
